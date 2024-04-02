@@ -126,6 +126,11 @@ const TestnetConig:Config = {
   },
 }
 
+export const MainnetRPC: string = "https://mainnet.ckbapp.dev/"
+export const MainnetRPCBackup: string = "https://mainnet.ckbapp.dev/"
+export const TestnetRPC: string = "https://testnet.ckbapp.dev/"
+export const TestnetRPCBackup: string = "https://testnet.ckb.dev/"
+
 export const DefaultConfig = {
     MainnetConfig,
     TestnetConig
