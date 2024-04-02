@@ -18,3 +18,9 @@ export interface Config {
     OMNILOCK: ScriptConfig;
   };
 }
+
+export interface Script {
+  codeHash: string;
+  hashType: string;
+  args: string;
+}

@@ -126,7 +126,7 @@ const TestnetConig:Config = {
   },
 }
 
-const DefaultConfig = {
+export const DefaultConfig = {
     MainnetConfig,
     TestnetConig
 }
