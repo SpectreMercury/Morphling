@@ -45,7 +45,6 @@ export const assembleWitnesses_secp256k1 = (tx: TransactionSkeletonInterface, fr
       witness = bytes.hexify(blockchain.WitnessArgs.pack(newWitnessArgs))
       tx.witnesses.set(firstIdx, witness)
     }
-    // txSkeleton = txSkeleton.update('witnesses', witnesses => witnesses.set(firstIndex, witness))
 
     return { tx, witnessIdx: firstIdx }
   }
