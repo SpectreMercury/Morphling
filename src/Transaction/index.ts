@@ -1,10 +1,11 @@
 import { Indexer } from '@ckb-lumos/ckb-indexer'
 import { DefaultConfig, MAX_FEE, MainnetRPC, TestnetRPC } from '../Config'
-import { Cell, CellDep, TransactionSkeletonInterface } from '../types/transaction'
+import { Cell, CellDep, RawTransaction, TransactionSkeletonInterface } from '../types/transaction'
 import { addressToLockScript } from '../Wallet/address'
 import { Config, Script } from '../types/config'
 import { BI, parseUnit } from '../base/number'
 import { List, Map as ImmutableMap } from 'immutable'
+import { assembleWitnesses_joyID } from '../base/witness'
 
 export const collecteCell = async (
   address: string,
@@ -59,7 +60,7 @@ export const getCellsDepByScript = (
   }
 }
 
-export const ckb_buildTxSkeletonWithOutWitness = async (
+export const capacity_buildTxSkeletonWithOutWitness = async (
   fromAddress: string,
   toAddress: string,
   amount: string | number,
@@ -162,4 +163,97 @@ export const ckb_buildTxSkeletonWithOutWitness = async (
   }
 
   return txSkeleton
+}
+
+export const createRawTransaction = (txSkeleton: TransactionSkeletonInterface) => {
+  const rawTx: RawTransaction = {
+    version: '0x0',
+    cellDeps: [],
+    headerDeps: [],
+    inputs: [],
+    outputs: [],
+    outputsData: [],
+    witnesses: []
+  }
+
+  // cellDeps
+  for (let i = 0; i < txSkeleton.cellDeps.size; i++) {
+    const cellDep = txSkeleton.cellDeps.get(i)
+    if (cellDep) rawTx.cellDeps.push(cellDep)
+  }
+  // headerDeps
+  for (let i = 0; i < txSkeleton.headerDeps.size; i++) {
+    const header = txSkeleton.headerDeps.get(i)
+    if (header) rawTx.headerDeps.push(header)
+  }
+  // inputs
+  for (let i = 0; i < txSkeleton.inputs.size; i++) {
+    const input = txSkeleton.inputs.get(i)
+    const inputSince = txSkeleton.inputSinces.get(i)
+    if (input && input.outPoint && inputSince) {
+      rawTx.inputs.push({
+        previousOutput: {
+          txHash: input.outPoint.txHash,
+          index: input.outPoint.index
+        },
+        since: inputSince
+      })
+    }
+  }
+  // outputs and outputsData
+  for (let i = 0; i < txSkeleton.outputs.size; i++) {
+    const output = txSkeleton.outputs.get(i)
+    if (output) {
+      rawTx.outputs.push(output.cellOutput)
+      rawTx.outputsData.push(output.data)
+    }
+  }
+  // witness
+  for (let i = 0; i < txSkeleton.witnesses.size; i++) {
+    const witnessItem = txSkeleton.witnesses.get(i)
+    if (witnessItem) {
+      rawTx.witnesses.push(witnessItem)
+    }
+  }
+
+  return rawTx
+}
+
+/*
+import { signRawTransaction } from "@joyid/ckb";
+
+const signedTx = await signRawTransaction(rawTx, seller, { witnessIndex });
+
+rpc.sendTransaction(signedTx, 'passthrough');
+*/
+export const capacity_createRawTransactionForJoyID = async (
+  fromAddress: string,
+  toAddress: string,
+  amount: string | number,
+  options: {
+    RPCUrl: string
+    config?: Config
+    fee?: string | number
+  }
+) => {
+  const txSkeleton = await capacity_buildTxSkeletonWithOutWitness(
+    fromAddress,
+    toAddress,
+    amount,
+    options
+  )
+
+  if (txSkeleton) {
+    const result = assembleWitnesses_joyID(
+      txSkeleton,
+      addressToLockScript(fromAddress, options.config)
+    )
+
+    if (result) {
+      const witnessIdx = result.witnessIdx
+      const rawTx = createRawTransaction(txSkeleton)
+
+      return { rawTx, witnessIdx }
+    }
+  }
 }

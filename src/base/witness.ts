@@ -49,3 +49,24 @@ export const assembleWitnesses_secp256k1 = (tx: TransactionSkeletonInterface, fr
     return { tx, witnessIdx: firstIdx }
   }
 }
+
+export const assembleWitnesses_joyID = (tx: TransactionSkeletonInterface, fromLock: Script) => {
+  const firstIdx = tx.inputs.findIndex(input => {
+    return (
+      input.cellOutput.lock.codeHash == fromLock.codeHash &&
+      input.cellOutput.lock.hashType == fromLock.hashType &&
+      input.cellOutput.lock.args == fromLock.args
+    )
+  })
+
+  if (firstIdx !== -1) {
+    for (let i = 0; i < tx.inputs.size; i++) {
+      tx.witnesses.push('0x')
+    }
+    const emptyWitness = { lock: '', inputType: '', outputType: '' }
+    const witness = bytes.hexify(blockchain.WitnessArgs.pack(emptyWitness))
+    tx.witnesses.set(firstIdx, witness)
+
+    return { tx, witnessIdx: firstIdx }
+  }
+}
