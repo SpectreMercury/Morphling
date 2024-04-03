@@ -1,10 +1,10 @@
-import { List, Map as ImmutableMap } from "immutable";
-import { Script } from "./config";
-import { ScriptSearchMode, ScriptType } from "@ckb-lumos/ckb-indexer/lib/type";
+import { List, Map as ImmutableMap } from 'immutable'
+import { Script } from './config'
+import { ScriptSearchMode, ScriptType } from '@ckb-lumos/ckb-indexer/lib/type'
 
 export type SearchMode = 'exact' | 'prefix'
 
-export type DepType = "depGroup" | "code";
+export type DepType = 'depGroup' | 'code'
 
 export type HexNumber = string
 export type HexString = string
@@ -17,21 +17,21 @@ export interface CellDep {
 }
 
 export interface OutPoint {
-  txHash: Hash;
-  index: HexNumber;
+  txHash: Hash
+  index: HexNumber
 }
 
 export interface Cell {
   cellOutput: {
-    capacity: HexNumber;
-    lock: Script;
-    type?: Script;
-  };
-  data: HexString;
-  outPoint?: OutPoint;
-  blockHash?: Hash;
-  blockNumber?: HexNumber;
-  txIndex?: HexNumber;
+    capacity: HexNumber
+    lock: Script
+    type?: Script
+  }
+  data: HexString
+  outPoint?: OutPoint
+  blockHash?: Hash
+  blockNumber?: HexNumber
+  txIndex?: HexNumber
 }
 
 export interface CellCollectorResults {
@@ -93,9 +93,25 @@ export interface WitnessArgsInterface {
   outputType: string
 }
 
-
 export interface GetBlockHashRPCResult {
-  jsonrpc: string;
-  id: number;
-  result: string;
+  jsonrpc: string
+  id: number
+  result: string
+}
+
+export interface RawTransaction {
+  version: string
+  cellDeps: CellDep[]
+  headerDeps: string[]
+  inputs: {
+    previousOutput: OutPoint | null
+    since: string
+  }[]
+  outputs: {
+    capacity: HexNumber
+    lock: Script
+    type?: Script
+  }[]
+  witnesses: string[]
+  outputsData: string[]
 }
