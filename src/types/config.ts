@@ -1,3 +1,5 @@
+import { Hash, HashType, HexString } from "./transaction";
+
 export interface ScriptConfig {
   CODE_HASH: string;
   HASH_TYPE: "type" | "data"; 
@@ -20,7 +22,9 @@ export interface Config {
 }
 
 export interface Script {
-  codeHash: string;
-  hashType: string;
-  args: string;
+  codeHash: Hash;
+  hashType: HashType;
+  args: HexString;
 }
+
+export type ScriptType = "type" | "lock";

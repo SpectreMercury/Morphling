@@ -1,30 +1,37 @@
 import { List, Map as ImmutableMap } from "immutable";
 import { Script } from "./config";
+import { ScriptSearchMode, ScriptType } from "@ckb-lumos/ckb-indexer/lib/type";
 
 export type SearchMode = "exact" | "prefix";
 
 export type DepType = "depGroup" | "code";
+
+export type HexNumber = string
+export type HexString = string
+export type Hash = string
+export type HashType = string
+
 export interface CellDep {
   outPoint: OutPoint;
   depType: DepType;
 }
 
 export interface OutPoint {
-  txHash: string;
-  index: string;
+  txHash: Hash;
+  index: HexNumber;
 }
 
 export interface Cell {
   cellOutput: {
-    capacity: string;
+    capacity: HexNumber;
     lock: Script;
     type?: Script;
   };
-  data: string;
+  data: HexString;
   outPoint?: OutPoint;
-  blockHash?: string;
-  blockNumber?: string;
-  txIndex?: string;
+  blockHash?: Hash;
+  blockNumber?: HexNumber;
+  txIndex?: HexNumber;
 }
 
 export interface CellCollectorResults {
@@ -79,4 +86,11 @@ export interface TransactionSkeletonInterface {
   fixedEntries: List<{ field: string; index: number }>;
   signingEntries: List<{ type: string; index: number; message: string }>;
   inputSinces: ImmutableMap<number, string>;
+}
+
+
+export interface GetBlockHashRPCResult {
+  jsonrpc: string;
+  id: number;
+  result: string;
 }
