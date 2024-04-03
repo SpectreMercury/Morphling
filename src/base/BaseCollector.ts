@@ -1,5 +1,29 @@
 import { Script } from "../types/config";
-import { CellProvider, ScriptWrapper } from "../types/transaction";
+import { TransactionCollectorOptions } from "../types/indexer";
+import { CellCollectorResults, CellProvider, QueryOptions, ScriptWrapper } from "../types/transaction";
+
+/**
+ * return if the input is a script wrapper
+ * @param maybeWrapped
+ */
+export function isScriptWrapper(
+  maybeWrapped: Script | ScriptWrapper | null
+): maybeWrapped is ScriptWrapper {
+  return (
+    maybeWrapped !== null &&
+    (maybeWrapped as ScriptWrapper).script !== undefined
+  );
+}
+
+export interface CellCollector {
+  collect(): CellCollectorResults;
+}
+
+export declare interface BaseCellCollector extends CellCollector {
+  count(): Promise<number>;
+
+  collect(): CellCollectorResults;
+}
 
 class TransactionCollector {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,10 +59,8 @@ class TransactionCollector {
     }
     // Wrap the plain `Script` into `ScriptWrapper`.
     if (lock && !isScriptWrapper(lock)) {
-      validators.ValidateScript(lock);
       this.lock = { script: lock, ioType: "both", argsLen: argsLen };
     } else if (lock && lock.script) {
-      validators.ValidateScript(lock.script);
       this.lock = lock;
       // check ioType, argsLen
       if (!lock.argsLen) {
@@ -51,10 +73,8 @@ class TransactionCollector {
     if (type === "empty") {
       this.type = type;
     } else if (type && !isScriptWrapper(type)) {
-      validators.ValidateScript(type);
       this.type = { script: type, ioType: "both", argsLen: argsLen };
     } else if (type && type.script) {
-      validators.ValidateScript(type.script);
       this.type = type;
       // check ioType, argsLen
       if (!type.argsLen) {
@@ -84,3 +104,6 @@ class TransactionCollector {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.rpc = (indexer as any).rpc;
   }
+}
+
+export { TransactionCollector }
